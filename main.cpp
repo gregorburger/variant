@@ -6,6 +6,8 @@
 
 #include "variant.hpp"
 
+#include <gtest/gtest.h>
+
 
 struct ref_parm {
 
@@ -87,17 +89,7 @@ void base_test_variant() {
 }
 
 void test_string() {
-    using types_t = nonstd::variant<bool, int, std::string, float, gaga>;
-
-    std::string h("hallo");
-
-    types_t str(h);
-
-    std::cout << str.get<std::string>() << std::endl;
-
-    str.set(std::string("gagammmmehhhl"));
-
-    std::cout << str.get<std::string>() << std::endl;
+   
 }
 
 void test_in_array() {
@@ -113,6 +105,7 @@ void test_in_array() {
 void test_leak() {
     struct leak {
         leak(const leak &other) {
+            (void)other;
             std::cout << "copy cons\n";
         }
         leak() {
@@ -151,7 +144,22 @@ void string_crash() {
     std::cout << *str_ptr << std::endl;
 }
 
-int main() {
+TEST(VariantTest, StringValues)
+{
+    using types_t = nonstd::variant<std::string>;
+
+    types_t str(std::string("hallo"));
+
+    EXPECT_EQ(str.get<std::string>(), "hallo");
+    str.set(std::string("gagammmmehhhl"));
+    EXPECT_EQ(str.get<std::string>(), "gagammmmehhhl");
+}
+
+int main(int argc, char **argv) {
+
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+#if 0
     //string_crash();
     test_leak();
     test_call();
@@ -160,4 +168,5 @@ int main() {
     test_string();
     std::cout << "through" << std::endl;
     return 0;
+#endif
 }
