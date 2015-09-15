@@ -52,6 +52,7 @@ namespace nonstd {
     struct tdeleter : public deleter {
         void operator()(char *b) override {
             T *_b = (T*)b;
+            (void)_b;
             _b->~T();
         }
     };

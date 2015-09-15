@@ -17,39 +17,39 @@ struct test_class {
     test_class() : x(100), z(100.0f) {}
     int x;
     float z;
-    void print(pod_parm p) {
+    void print(pod_parm _p) {
         called = true;
-        this->p = p;
+        p = _p;
     }
     bool called = false;
-    pod_parm p = {-1};
+    pod_parm p;
 };
 
 struct test_class_1 {
-    void print(pod_parm p) {
+    void print(pod_parm _p) {
         called = true;
-        this->p = p;
+        p = _p;
     }
     bool called = false;
-    pod_parm p = {-1};
+    pod_parm p;
 };
 
 struct test_class_2 {
-    void print(pod_parm p) {
+    void print(pod_parm _p) {
         called = true;
-        this->p = p;
+        p = _p;
     }
     bool called = false;
-    pod_parm p = {-1};
+    pod_parm p;
 };
 
 struct test_class_3 {
-    void print(pod_parm p) {
+    void print(pod_parm _p) {
         called = true;
-        this->p = p;
+        p = _p;
     }
     bool called = false;
-    pod_parm p = {-1};
+    pod_parm p;
 };
 
 void test_leak() {
@@ -58,10 +58,12 @@ void test_leak() {
             (void)other;
             std::cout << "copy cons\n";
         }
+
         leak() {
             array = new int[1000];
             std::cout << "cons\n";
         }
+
         ~leak() {
             std::cout << "des\n";
             delete[] array;
@@ -78,6 +80,7 @@ void test_leak() {
 
         int *array = 0;
     };
+
     leak l;
     nonstd::variant<leak, int, std::string> v;
     v.set<leak>(l);
