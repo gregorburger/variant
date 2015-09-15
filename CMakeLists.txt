@@ -15,7 +15,7 @@ endif()
     
 enable_testing()
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp variant.hpp)
 add_executable(variant ${SOURCE_FILES})
 target_compile_features(variant PRIVATE cxx_constexpr cxx_variadic_templates)
 target_link_libraries(variant gtest)
