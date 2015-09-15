@@ -17,39 +17,39 @@ struct test_class {
     test_class() : x(100), z(100.0f) {}
     int x;
     float z;
-    void print(pod_parm _p) {
+    int print(pod_parm &_p) {
         called = true;
-        p = _p;
+        _p.i = -_p.i;
+        return -10;
     }
     bool called = false;
-    pod_parm p;
 };
 
 struct test_class_1 {
-    void print(pod_parm _p) {
+    int print(pod_parm &_p) {
         called = true;
-        p = _p;
+        _p.i = -_p.i;
+        return -10;
     }
     bool called = false;
-    pod_parm p;
 };
 
 struct test_class_2 {
-    void print(pod_parm _p) {
+    int print(pod_parm &_p) {
         called = true;
-        p = _p;
+        _p.i = -_p.i;
+        return -10;
     }
     bool called = false;
-    pod_parm p;
 };
 
 struct test_class_3 {
-    void print(pod_parm _p) {
+    int print(pod_parm &_p) {
         called = true;
-        p = _p;
+        _p.i = -_p.i;
+        return -10;
     }
     bool called = false;
-    pod_parm p;
 };
 
 void test_leak() {
@@ -177,7 +177,12 @@ TEST(VariantTest, Select)
     ASSERT_FALSE(v[3].get<test_class_3>().called);
 
     for (auto & t: v) {
-        t.select(std::make_tuple(pod_parm{}), &test_class_1::print, &test_class::print, &test_class_2::print);
+        auto expected_ret = t.is<test_class_3>() ? 0 : -10;
+        auto expected_i = t.is<test_class_3>() ? 42 : -42;
+        auto args = std::make_tuple(pod_parm{});
+        ASSERT_EQ(std::get<0>(args).i, 42);
+        ASSERT_EQ(t.select(args, &test_class::print, &test_class_1::print, &test_class_2::print), expected_ret);
+        ASSERT_EQ(std::get<0>(args).i, expected_i);
     }
 
     ASSERT_TRUE(v[0].get<test_class>().called);

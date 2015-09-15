@@ -43,6 +43,13 @@ namespace nonstd {
         typedef Class type;
     };
 
+    template <class> struct return_type;//undefined
+
+    template <typename Ret, typename Class, typename... Args>
+    struct return_type<Ret(Class::*)(Args...)> {
+        typedef Ret type;
+    };
+
     struct deleter {
         virtual ~deleter(){};
         virtual void operator()(char *b) = 0;
@@ -109,21 +116,28 @@ namespace nonstd {
             return (ptr->*func)(std::get<index>(std::forward<Tup>(tup))...);
         }
 
-        template <typename... CallbackArgs, typename Callback>
-        void select(std::tuple<CallbackArgs...> args, Callback cb) {
+        template <typename Tup, typename Callback>
+        decltype(auto) select(Tup &&args, Callback cb) {
             using htype = typename holder_type<Callback>::type;
-            if (std::type_index(typeid(htype)) == info) {
-                constexpr auto size = std::tuple_size<typename std::decay<decltype(args)>::type>::value;
+            using ret_type = typename return_type<Callback>::type;
 
-                htype *ptr = (htype *)b;
-                invoke_helper(ptr, cb, args, std::make_index_sequence<size>{});
+            if (std::type_index(typeid(htype)) != info) {
+                return ret_type(); //throw here?
             }
+
+            constexpr auto size = std::tuple_size<typename std::decay<decltype(args)>::type>::value;
+            htype *ptr = (htype *)b;
+            return invoke_helper(ptr, cb, std::forward<Tup>(args), std::make_index_sequence<size>{});
         }
 
-        template <typename... CallbackArgs, typename Callback, typename... TailCallbacks>
-        void select(std::tuple<CallbackArgs...> args, Callback cb, TailCallbacks... cbs) {
-            select(args, cb);
-            select(args, cbs...);
+        template <typename Tup, typename Callback, typename... TailCallbacks>
+        decltype(auto) select(Tup &&args, Callback cb, TailCallbacks... cbs) {
+            using htype = typename holder_type<Callback>::type;
+            if (std::type_index(typeid(htype)) == info) {
+                return select(std::forward<Tup>(args), cb);
+            } else {
+                return select(std::forward<Tup>(args), cbs...);
+            }
         }
 
     private:
