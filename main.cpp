@@ -9,98 +9,48 @@
 #include <gtest/gtest.h>
 
 
-struct ref_parm {
-
+struct pod_parm {
+    int i = 42;
 };
 
-struct gaga {
-    void print(ref_parm) {
-        int i = 0;
-        std::cout << "i'm gaga " << i << std::endl;
+struct test_class {
+    test_class() : x(100), z(100.0f) {}
+    int x;
+    float z;
+    void print(pod_parm p) {
+        called = true;
+        this->p = p;
     }
-    int x = 100;
-    float z = 100;
+    bool called = false;
+    pod_parm p = {-1};
 };
 
-struct gaga1 {
-
-    void print(ref_parm) {
-        int i = 0;
-        std::cout << "i'm gaga1 " << i << std::endl;
+struct test_class_1 {
+    void print(pod_parm p) {
+        called = true;
+        this->p = p;
     }
-    int x = 100;
-    float z = 100;
-    float *d;
+    bool called = false;
+    pod_parm p = {-1};
 };
 
-struct gaga2 {
-    void print(ref_parm) {
-        int i = 0;
-        std::cout << "i'm gaga2 " << i << std::endl;
+struct test_class_2 {
+    void print(pod_parm p) {
+        called = true;
+        this->p = p;
     }
-    int x = 100;
-    float z = 100;
+    bool called = false;
+    pod_parm p = {-1};
 };
 
-void test_call() {
-    using types_t = nonstd::variant<gaga, gaga1, gaga2>;
-    std::vector<types_t> v = {gaga{}, gaga1{}, gaga2{}};
-
-    for (auto t: v) {
-        t.select(std::make_tuple(ref_parm{}), &gaga1::print, &gaga::print, &gaga2::print);
+struct test_class_3 {
+    void print(pod_parm p) {
+        called = true;
+        this->p = p;
     }
-}
-
-void base_test_variant() {
-    static_assert(nonstd::is_in<int, float, int, double>(), "not in typelist");
-
-    using types_t = nonstd::variant<bool, int, std::string, float, gaga>;
-
-    types_t _int(10);
-    std::cout << _int.get<int>() << std::endl;
-    _int.set(100);
-    std::cout << _int.get<int>() << std::endl;
-
-    types_t _empty_int;
-    _empty_int.set(42);
-
-    std::cout << _empty_int.get<int>() << std::endl;
-
-    //_empty_int.set(std::string("asdf"));
-
-    types_t _other_int = _empty_int;
-
-    std::cout << _other_int.get<int>() << std::endl;
-    _other_int.set(300);
-    std::cout << _other_int.get<int>() << std::endl;
-    assert(_empty_int.get<int>() != _other_int.get<int>());
-    std::cout << _empty_int.get<int>() << std::endl;
-
-
-    types_t d(1.00001f);
-
-    std::cout << d.get<float>() << std::endl;
-
-    types_t _g(gaga{});
-
-    assert(_g.get<gaga>().x == 100);
-    assert(_g.get<gaga>().z == 100.0);
-    assert(_g.is<gaga>());
-}
-
-void test_string() {
-   
-}
-
-void test_in_array() {
-    using types_t = nonstd::variant<bool, int, std::string, float>;
-    std::array<types_t, 4> t{{true, false, std::string("hundat"), 3.142f}};
-
-    std::cout << t[0].get<bool>() << std::endl;
-    std::cout << t[1].get<bool>() << std::endl;
-    std::cout << t[2].get<std::string>() << std::endl;
-    std::cout << t[3].get<float>() << std::endl;
-}
+    bool called = false;
+    pod_parm p = {-1};
+};
 
 void test_leak() {
     struct leak {
@@ -155,18 +105,95 @@ TEST(VariantTest, StringValues)
     EXPECT_EQ(str.get<std::string>(), "gagammmmehhhl");
 }
 
+TEST(VariantTest, InArray)
+{
+    using types_t = nonstd::variant<bool, int, std::string, float, double>;
+    std::array<types_t, 5> t{{true, false, std::string("hundret"), 3.142f, 3.142}};
+
+    ASSERT_TRUE(t[0].is<bool>());
+    ASSERT_TRUE(t[1].is<bool>());
+    ASSERT_TRUE(t[2].is<std::string>());
+    ASSERT_TRUE(t[3].is<float>());
+    ASSERT_TRUE(t[4].is<double>());
+
+    ASSERT_EQ(t[0].get<bool>(), true);
+    ASSERT_EQ(t[1].get<bool>(), false);
+    ASSERT_EQ(t[2].get<std::string>(), "hundret");
+    ASSERT_EQ(t[3].get<float>(), 3.142f);
+    ASSERT_EQ(t[4].get<double>(), 3.142);
+}
+
+TEST(VariantTest, Empty)
+{
+    nonstd::variant<int> v;
+    ASSERT_TRUE(v.empty());
+    v.set(100);
+    ASSERT_FALSE(v.empty());
+}
+
+TEST(VariantTest, BaseTests)
+{
+    using types_t = nonstd::variant<bool, int, std::string, float, test_class>;
+
+    types_t _int(10);
+    ASSERT_EQ(_int.get<int>(), 10);
+    _int.set(100);
+    ASSERT_EQ(_int.get<int>(), 100);
+
+    types_t _empty_int;
+    _empty_int.set(42);
+    ASSERT_EQ(_empty_int.get<int>(), 42);
+
+    types_t _other_int = _empty_int;
+
+    ASSERT_EQ(_other_int.get<int>(), 42);
+    _other_int.set(300);
+    ASSERT_EQ(_other_int.get<int>(), 300);
+    ASSERT_EQ(_empty_int.get<int>(), 42);
+    ASSERT_NE(_other_int.get<int>(), _empty_int.get<int>());
+
+
+    types_t d(1.00001f);
+
+    ASSERT_EQ(d.get<float>(), 1.00001f);
+
+    types_t _g(test_class{});
+
+    ASSERT_EQ(_g.get<test_class>().x, 100);
+    ASSERT_EQ(_g.get<test_class>().z, 100.0);
+    ASSERT_TRUE(_g.is<test_class>());
+}
+
+TEST(VariantTest, Select)
+{
+    using types_t = nonstd::variant<test_class, test_class_1, test_class_2, test_class_3>;
+    std::vector<types_t> v = {test_class{}, test_class_1{}, test_class_2{}, test_class_3{}};
+    ASSERT_FALSE(v[0].get<test_class>().called);
+    ASSERT_FALSE(v[1].get<test_class_1>().called);
+    ASSERT_FALSE(v[2].get<test_class_2>().called);
+    ASSERT_FALSE(v[3].get<test_class_3>().called);
+
+    for (auto & t: v) {
+        t.select(std::make_tuple(pod_parm{}), &test_class_1::print, &test_class::print, &test_class_2::print);
+    }
+
+    ASSERT_TRUE(v[0].get<test_class>().called);
+    ASSERT_TRUE(v[1].get<test_class_1>().called);
+    ASSERT_TRUE(v[2].get<test_class_2>().called);
+    ASSERT_FALSE(v[3].get<test_class_3>().called);
+}
+
+TEST(IsIn, IsInTests)
+{
+    ASSERT_FALSE((nonstd::is_in<int>()));
+    ASSERT_FALSE((nonstd::is_in<int, float>()));
+    ASSERT_TRUE((nonstd::is_in<int, int>()));
+    ASSERT_TRUE((nonstd::is_in<int, float, double, std::string, test_class, test_class_1, test_class_2, int>()));
+    ASSERT_TRUE((nonstd::is_in<test_class_2, float, double, std::string, test_class, test_class_1, test_class_2>()));
+}
+
 int main(int argc, char **argv) {
 
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
-#if 0
-    //string_crash();
-    test_leak();
-    test_call();
-    test_in_array();
-    base_test_variant();
-    test_string();
-    std::cout << "through" << std::endl;
-    return 0;
-#endif
 }

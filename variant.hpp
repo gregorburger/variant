@@ -21,6 +21,11 @@ namespace nonstd {
         return max_size<A>() > max_size<B, Args...>() ? max_size<A>() : max_size<B, Args...>();
     }
 
+    template <typename Check>
+    constexpr bool is_in() {
+        return false;
+    };
+
     template <typename Check, typename Head>
     constexpr bool is_in() {
         return std::is_same<Check, Head>::value;
@@ -86,6 +91,10 @@ namespace nonstd {
             assert(is<T>());
             (*d)(b);
             new (b) T(other);
+        }
+
+        bool empty() const {
+            return info == typeid(empty_type);
         }
 
         template <typename T>
