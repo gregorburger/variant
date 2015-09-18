@@ -167,6 +167,60 @@ TEST(VariantTest, BaseTests)
     ASSERT_TRUE(_g.is<test_class>());
 }
 
+
+void int_cb(int &x) {
+    x = 42;
+}
+
+void float_cb(float &x) {
+    x = 42.42;
+}
+
+void str_cb(std::string &x) {
+    x = "fortytwo";
+}
+
+
+TEST(VariantTest, SwitchFuncPointer)
+{
+    using types_t = nonstd::variant<int, float, std::string>;
+    std::vector<types_t> v = {10, 10.10f, std::string("ten")};
+
+    ASSERT_EQ(v[0].get<int>(), 10);
+    ASSERT_EQ(v[1].get<float>(), 10.10f);
+    ASSERT_EQ(v[2].get<std::string>(), "ten");
+
+    for (auto & t: v) {
+        t.select<int, float, std::string>(int_cb, float_cb, str_cb);
+    }
+
+    ASSERT_EQ(v[0].get<int>(), 42);
+    ASSERT_EQ(v[1].get<float>(), 42.42f);
+    ASSERT_EQ(v[2].get<std::string>(), "fortytwo");
+}
+
+TEST(VariantTest, SwitchLambda)
+{
+    using types_t = nonstd::variant<int, float, std::string>;
+    std::vector<types_t> v = {10, 10.10f, std::string("ten")};
+
+    ASSERT_EQ(v[0].get<int>(), 10);
+    ASSERT_EQ(v[1].get<float>(), 10.10f);
+    ASSERT_EQ(v[2].get<std::string>(), "ten");
+
+    for (auto & t: v) {
+        t.select<int, float, std::string>(
+                [](int &x){x = 42;},
+                [](float &x){x =  42.42f;},
+                [](std::string &x){ x = "fortytwo";}
+        );
+    }
+
+    ASSERT_EQ(v[0].get<int>(), 42);
+    ASSERT_EQ(v[1].get<float>(), 42.42f);
+    ASSERT_EQ(v[2].get<std::string>(), "fortytwo");
+}
+
 TEST(VariantTest, Select)
 {
     using types_t = nonstd::variant<test_class, test_class_1, test_class_2, test_class_3>;

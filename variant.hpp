@@ -140,6 +140,22 @@ namespace nonstd {
             }
         }
 
+        template <typename T, typename CallbackT>
+        void select(CallbackT &&f) {
+            static_assert(is_in<T, Types...>(), "type not in variant");
+            if (is<T>()) {
+                f(get<T>());
+            }
+        }
+
+        template <typename T, typename... Ts, typename CallbackT, typename... CallbackTs>
+        void select(CallbackT&& cb, CallbackTs&& ...cbs) {
+            static_assert(sizeof...(Ts) + 1 == sizeof...(CallbackTs) + 1, "not the same size");
+            select<T>(std::forward<CallbackT>(cb));
+            select<Ts...>(std::forward<CallbackTs>(cbs)...);
+        }
+
+
     private:
         struct empty_type {};
 
