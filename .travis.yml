@@ -24,4 +24,3 @@ addons:
 
 script:
   - make
-  - ctest -V
