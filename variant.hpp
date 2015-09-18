@@ -117,7 +117,7 @@ namespace nonstd {
         }
 
         template <typename Tup, typename Callback>
-        decltype(auto) select(Tup &&args, Callback cb) {
+        decltype(auto) select(Tup &&args, Callback &&cb) {
             using htype = typename holder_type<Callback>::type;
             using ret_type = typename return_type<Callback>::type;
 
@@ -131,12 +131,12 @@ namespace nonstd {
         }
 
         template <typename Tup, typename Callback, typename... TailCallbacks>
-        decltype(auto) select(Tup &&args, Callback cb, TailCallbacks... cbs) {
+        decltype(auto) select(Tup &&args, Callback&& cb, TailCallbacks&& ...cbs) {
             using htype = typename holder_type<Callback>::type;
-            if (std::type_index(typeid(htype)) == info) {
-                return select(std::forward<Tup>(args), cb);
+            if (is<htype>()) {
+                return select(std::forward<Tup>(args), std::forward<Callback>(cb));
             } else {
-                return select(std::forward<Tup>(args), cbs...);
+                return select(std::forward<Tup>(args), std::forward<TailCallbacks>(cbs)...);
             }
         }
 
