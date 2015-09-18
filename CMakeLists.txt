@@ -12,12 +12,13 @@ if (MSVC)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -Wall")
 endif()
-    
-enable_testing()
 
 set(SOURCE_FILES main.cpp variant.hpp)
 add_executable(variant ${SOURCE_FILES})
 #target_compile_features(variant PRIVATE cxx_constexpr cxx_variadic_templates)
 set_property(TARGET variant PROPERTY CXX_STANDARD 14)
 target_link_libraries(variant gtest)
+
+enable_testing()
+add_test(MainTest variant)
 

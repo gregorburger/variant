@@ -22,4 +22,6 @@ addons:
     - g++-4.9
     - clang
 
-script: make
+script:
+  - make
+  - ctest
