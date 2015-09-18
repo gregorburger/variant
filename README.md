@@ -38,8 +38,8 @@ std::vector<types_t> v = {10, 10.10f, std::string("ten")};
 for (auto & t: v) {
     t.select<int, float, std::string>(
             [](int &x){x = 42;},
-            [](float &x){x =  42.42f;},
-            [](std::string &x){ x = "fortytwo";}
+            [](float &x){x = 42.42f;},
+            [](std::string &x){x = "fortytwo";}
     );
 }
 ```
