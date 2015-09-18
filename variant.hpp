@@ -1,5 +1,5 @@
 //
-// Created by Gregor Burger on 13.09.15.
+// Copyright (C) 2015 Gregor Burger <burger.gregor@gmail.com>
 //
 
 #ifndef VARIANT_VARIANT_H

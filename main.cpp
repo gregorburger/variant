@@ -1,3 +1,7 @@
+//
+// Copyright (C) 2015 Gregor Burger <burger.gregor@gmail.com>
+//
+
 #include <iostream>
 #include <cassert>
 #include <vector>
