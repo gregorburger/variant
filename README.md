@@ -1,6 +1,7 @@
 # Variant
 
  * Typesafe tagged union 
+ * Small and simple (below 200 lines C++ code)
  * AKA variant
  * "don't call us, we'll call you" semantics
  * Variant can be empty and could possibly be retyped
