@@ -1,5 +1,7 @@
 # Variant
 
+[![Build Status](https://travis-ci.org/gregorburger/variant.svg)](https://travis-ci.org/gregorburger/variant)
+
  * Typesafe tagged union 
  * AKA variant
  * Small and simple (below 200 lines C++ code)
