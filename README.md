@@ -4,7 +4,9 @@
  * "don't call us, we'll call you" semantics
  * Variant can be empty and could possibly be retyped
  * Stack allocated
-
+ * no dependencies (gtest for tests)
+ * works on clang, gcc, MSVC 14
+ 
 # Basic Features:
 ```C++
 using types_t = nonstd::variant<int, float, std::string>;
