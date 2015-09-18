@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 2.8.7)
 project(variant)
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
