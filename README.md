@@ -1,15 +1,14 @@
 # Variant
 
-[![Build Status](https://travis-ci.org/gregorburger/variant.svg)](https://travis-ci.org/gregorburger/variant)
-
  * Typesafe tagged union 
- * Small and simple (below 200 lines C++ code)
  * AKA variant
+ * Small and simple (below 200 lines C++ code)
+ * C++14 required (decltype(auto))
  * "don't call us, we'll call you" semantics
  * Variant can be empty and could possibly be retyped
  * Stack allocated
  * No dependencies (gtest for tests)
- * Works on clang, gcc, MSVC 14
+ * Works on clang (3.5), gcc (4.9), MSVC (14)
  * No MACRO voodoo
  * Supports pure value semantics
  
