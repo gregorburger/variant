@@ -92,9 +92,11 @@ namespace nonstd {
         template <typename T>
         void set(const T &other) {
             static_assert(is_in<T, Types...>(), "not in types");
-            if (info == typeid(empty_type)) {
+            if (empty()) {
                 info = typeid(T);
                 d = std::make_shared<tdeleter<T>>();
+            } else {
+                (*d)(b);
             }
             assert(is<T>());
             (*d)(b);
