@@ -177,7 +177,7 @@ void int_cb(int &x) {
 }
 
 void float_cb(float &x) {
-    x = 42.42;
+    x = 42.42f;
 }
 
 void str_cb(std::string &x) {

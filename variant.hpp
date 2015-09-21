@@ -6,7 +6,6 @@
 #define VARIANT_VARIANT_H
 
 #include <typeindex>
-#include <memory>
 #include <tuple>
 
 namespace nonstd {
@@ -50,20 +49,6 @@ namespace nonstd {
         typedef Ret type;
     };
 
-    struct deleter {
-        virtual ~deleter(){};
-        virtual void operator()(char *b) = 0;
-    };
-
-    template <typename T>
-    struct tdeleter : public deleter {
-        void operator()(char *b) override {
-            T *_b = (T*)b;
-            (void)_b;
-            _b->~T();
-        }
-    };
-
     template<typename... Types>
     struct variant {
 
@@ -73,13 +58,10 @@ namespace nonstd {
         variant(const T &t) : info(typeid(T)) {
             static_assert(is_in<T, Types...>(), "not in types");
             new (b) T(t);
-            d = std::make_shared<tdeleter<T>>();
         }
 
         ~variant() {
-            if (d) {
-                (*d)(b);
-            }
+            _delete<Types...>();
         }
 
         template <typename T>
@@ -94,13 +76,13 @@ namespace nonstd {
             static_assert(is_in<T, Types...>(), "not in types");
             if (empty()) {
                 info = typeid(T);
-                d = std::make_shared<tdeleter<T>>();
-            } else {
-                (*d)(b);
-            }
+                new (b) T();
+            } 
+            _delete<Types...>();
             assert(is<T>());
-            (*d)(b);
-            new (b) T(other);
+
+            T *_t = (T*)b;
+            *_t = other;
         }
 
         bool empty() const {
@@ -159,11 +141,29 @@ namespace nonstd {
 
 
     private:
+        template <typename T>
+        bool _delete() {
+            if (empty())
+                return true;
+            if (!is<T>())
+                return false; 
+
+            ((T*)b)->~T();
+            return true;
+        }
+
+        template <typename T, typename Thead, typename... Ts>
+        void _delete() {
+            if (empty()) 
+                return;
+            if (_delete<T>())
+                return;
+            _delete<Thead, Ts...>();
+        }
         struct empty_type {};
 
         char b[max_size<Types...>()] = {0};
         std::type_index info = typeid(empty_type);
-        std::shared_ptr<deleter> d = nullptr;
     };
 }
 
