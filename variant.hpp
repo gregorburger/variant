@@ -60,6 +60,15 @@ namespace nonstd {
             new (b) T(t);
         }
 
+        variant(const variant &other) {
+            assert(empty() || info == other.info);
+            _assign<Types...>(other);
+        }
+
+        variant(variant &&other) = delete;
+        variant &operator=(const variant &other) = delete;
+        variant &operator=(variant &&other) = delete;
+
         ~variant() {
             _delete<Types...>();
         }
@@ -160,6 +169,26 @@ namespace nonstd {
                 return;
             _delete<Thead, Ts...>();
         }
+
+        template <typename T>
+        bool _assign(const variant& other) {
+            if (!other.is<T>())
+                return false;
+
+            T *_this = (T*)b;
+            T *_other = (T*)other.b;
+            *_this = *_other;
+            info = other.info;
+            return true;
+        }
+
+        template <typename T, typename Thead, typename... Ts>
+        void _assign(const variant& other) {
+            if (_assign<T>(other))
+                return;
+            _assign<Thead, Ts...>(other);
+        }
+
         struct empty_type {};
 
         char b[max_size<Types...>()] = {0};
