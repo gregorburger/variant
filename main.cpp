@@ -138,6 +138,26 @@ TEST(VariantTest, Empty)
     ASSERT_FALSE(v.empty());
 }
 
+TEST(VariantTest, AssignmentConstructorString)
+{
+    using types_t = nonstd::variant<std::string>;
+
+    types_t a;
+    ASSERT_TRUE(a.empty());
+    a.set<std::string>("one");
+    ASSERT_EQ(a.get<std::string>(), "one");
+    types_t b(std::string("two"));
+    ASSERT_EQ(b.get<std::string>(), "two");
+    types_t c(std::string("waaaaay longer"));
+    ASSERT_EQ(c.get<std::string>(), "waaaaay longer");
+    types_t da(a);
+    ASSERT_EQ(da.get<std::string>(), "one");
+    types_t db(b);
+    ASSERT_EQ(db.get<std::string>(), "two");
+    types_t dc(c);
+    ASSERT_EQ(dc.get<std::string>(), "waaaaay longer");
+}
+
 TEST(VariantTest, BaseTests)
 {
     using types_t = nonstd::variant<bool, int, std::string, float, test_class>;

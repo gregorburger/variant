@@ -86,8 +86,7 @@ namespace nonstd {
             if (empty()) {
                 info = typeid(T);
                 new (b) T();
-            } 
-            _delete<Types...>();
+            }
             assert(is<T>());
 
             T *_t = (T*)b;
@@ -172,12 +171,13 @@ namespace nonstd {
 
         template <typename T>
         bool _assign(const variant& other) {
+            assert(empty());
             if (!other.is<T>())
                 return false;
 
-            T *_this = (T*)b;
             T *_other = (T*)other.b;
-            *_this = *_other;
+
+            new (b) T(*_other);
             info = other.info;
             return true;
         }
