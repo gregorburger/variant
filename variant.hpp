@@ -65,7 +65,10 @@ namespace nonstd {
             _assign<Types...>(other);
         }
 
-        variant(variant &&other) = delete;
+        variant(variant &&other) : info(other.info) {
+            _move_cons<Types...>(std::move(other));
+        }
+
         variant &operator=(const variant &other) = delete;
         variant &operator=(variant &&other) = delete;
 
@@ -187,6 +190,23 @@ namespace nonstd {
             if (_assign<T>(other))
                 return;
             _assign<Thead, Ts...>(other);
+        }
+
+        template <typename T>
+        bool _move_cons(variant&& other) {
+            if (!other.is<T>())
+                return false;
+
+            T *_other = (T*)other.b;
+            new (b) T(std::move(*_other));
+            return true;
+        }
+
+        template <typename T, typename Thead, typename... Ts>
+        void _move_cons(variant&& other) {
+            if (_move_cons<T>(std::move(other)))
+                return;
+            _move_cons<Thead, Ts...>(std::move(other));
         }
 
         struct empty_type {};
