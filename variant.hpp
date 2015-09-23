@@ -11,7 +11,7 @@
 namespace nonstd {
 
     template <typename A>
-    constexpr size_t max_size()  {
+    constexpr size_t max_size() {
         return sizeof(A);
     }
 
@@ -23,17 +23,17 @@ namespace nonstd {
     template <typename Check>
     constexpr bool is_in() {
         return false;
-    };
+    }
 
     template <typename Check, typename Head>
     constexpr bool is_in() {
         return std::is_same<Check, Head>::value;
-    };
+    }
 
     template <typename Check, typename Head, typename Next, typename... Types>
     constexpr bool is_in() {
         return is_in<Check, Head>() ? true : is_in<Check, Next, Types...>();
-    };
+    }
 
     template <class> struct holder_type;//undefined
 
