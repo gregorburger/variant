@@ -2,11 +2,11 @@
 
 [![Build Status](https://travis-ci.org/gregorburger/variant.svg)](https://travis-ci.org/gregorburger/variant)
 
- * Typesafe tagged union 
- * AKA variant
- * Small and simple (below 200 lines C++ code)
+ * Typesafe tagged union (variant)
+ * Small and simple (below 250 lines C++ code)
  * C++14 required (decltype(auto))
- * "don't call us, we'll call you" semantics
+ * visitation for member functions, lambdas and function pointers
+ * visitation using perfect forwarded arguments
  * Variant can be empty and could possibly be retyped
  * Stack allocated
  * No dependencies (gtest for tests)
@@ -59,6 +59,12 @@ std::vector<types_t> v = {test_class{}, test_class_1{}, test_class_2{}, test_cla
 for (auto & t: v) {
     auto args = std::make_tuple(pod_parm{});
     t.select(args, &test_class::print, &test_class_1::print, &test_class_2::print);
+}
+
+//visitation using perfect forwarding
+for (auto & t: v) {
+    pod_parm arg;
+    t.visit(&test_class::print, &test_class_1::print, &test_class_2::print)(arg);
 }
 
 //test classes
