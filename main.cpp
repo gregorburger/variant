@@ -269,6 +269,31 @@ TEST(VariantTest, Select)
     ASSERT_FALSE(v[3].get<test_class_3>().called);
 }
 
+
+TEST(VariantTest, VisitPerfectForwarding)
+{
+    using types_t = nonstd::variant<test_class, test_class_1, test_class_2, test_class_3>;
+    std::vector<types_t> v = {test_class{}, test_class_1{}, test_class_2{}, test_class_3{}};
+    ASSERT_FALSE(v[0].get<test_class>().called);
+    ASSERT_FALSE(v[1].get<test_class_1>().called);
+    ASSERT_FALSE(v[2].get<test_class_2>().called);
+    ASSERT_FALSE(v[3].get<test_class_3>().called);
+
+    for (auto & t: v) {
+        auto expected_ret = t.is<test_class_3>() ? 0 : -10;
+        auto expected_i = t.is<test_class_3>() ? 42 : -42;
+        pod_parm args;
+        ASSERT_EQ(args.i, 42);
+        ASSERT_EQ(t.visit(&test_class::print, &test_class_1::print, &test_class_2::print)(args), expected_ret);
+        ASSERT_EQ(args.i, expected_i);
+    }
+
+    ASSERT_TRUE(v[0].get<test_class>().called);
+    ASSERT_TRUE(v[1].get<test_class_1>().called);
+    ASSERT_TRUE(v[2].get<test_class_2>().called);
+    ASSERT_FALSE(v[3].get<test_class_3>().called);
+}
+
 TEST(IsIn, IsInTests)
 {
     ASSERT_FALSE((nonstd::is_in<int>()));
@@ -279,7 +304,6 @@ TEST(IsIn, IsInTests)
 }
 
 int main(int argc, char **argv) {
-
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

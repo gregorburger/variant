@@ -150,6 +150,32 @@ namespace nonstd {
             select<Ts...>(std::forward<CallbackTs>(cbs)...);
         }
 
+        template <typename T, typename Ret, typename... Args>
+        decltype(auto) visit(Ret (T::*cb)(Args...)) {
+            static_assert(is_in<T, Types...>(), "not in types");
+            if (!is<T>()) {
+                //return dummy callback
+                return std::function<Ret(Args...)>([](Args...){
+                    return Ret{};
+                });
+            }
+            T *t = (T*)b;
+            return std::function<Ret(Args...)>([t, cb](Args... a) {
+                return (t->*cb)(std::forward<Args>(a)...);
+            });
+        }
+
+        template <typename Callback, typename... TailCallbacks>
+        decltype(auto) visit(Callback&& cb, TailCallbacks&& ...cbs) {
+            using htype = typename holder_type<Callback>::type;
+
+            if (is<htype>()) {
+                return visit(std::forward<Callback>(cb));
+            }
+
+            return visit(std::forward<TailCallbacks>(cbs)...);
+        }
+
 
     private:
         template <typename T>
