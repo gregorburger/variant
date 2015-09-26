@@ -7,6 +7,7 @@
 
 #include <typeindex>
 #include <tuple>
+#include <functional>
 
 namespace nonstd {
 
